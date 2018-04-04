@@ -10,6 +10,11 @@
     <string name="hard">Hard</string>
     <string name="middle">Middle</string>
     <string name="train">Touch Train</string>
-
+    <string name="INFO">INFO</string>
+    <string name="change_photo">Change Photo</string>
+    <string name="take_photo">Take a Photo</string>
+    <string name="gallery">From Gallery</string>
+    <string name="cancel">Cancel</string>
+    <string name="record">Record</string>
 
 </resources>

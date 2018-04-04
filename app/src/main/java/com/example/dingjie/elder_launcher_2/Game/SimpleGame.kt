@@ -49,17 +49,19 @@ class SimpleGame : AppCompatActivity() {
         )
         images[0].layoutParams.height = matchParent
         images[0].layoutParams.width =matchParent
-        if(mode =="Hard"){
+        if(mode == "Hard"){
             images[0].setImageResource(R.drawable.play_button)
         }
         for(i in images.indices){
-            images[i].setOnClickListener(View.OnClickListener {
+            images[i].setOnClickListener {
                 if(i !=0)
                     if(images[i].drawable == images[0].drawable){
-                        randomImage()
+                        if(mode != "Hard")
+                            randomImage()
+
                     }
                 //else
-            })
+            }
             if(i == 0 )
                 continue
             images[i].layoutParams.height = MainActivity.screenHeight / 3
@@ -69,11 +71,13 @@ class SimpleGame : AppCompatActivity() {
             }
         }
         //first
-        randomImage()
+        if(mode != "Hard")
+            randomImage()
 
     }
     fun randomImage(){
         var photo_answer = random.nextInt(photo.size)
+
         images[0].setImageBitmap(photo.get(photo_answer))
 
         var answer = random.nextInt(images.size-1)+1
@@ -119,8 +123,8 @@ class SimpleGame : AppCompatActivity() {
         try {
             for (contactID in contactIDs) {
 
-                val inputStream = ContactsContract.Contacts.openContactPhotoInputStream(getContentResolver(),
-                        ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI, contactID));
+                val inputStream = ContactsContract.Contacts.openContactPhotoInputStream(contentResolver,
+                        ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI, contactID))
                 if (inputStream != null) {
                     photo.add(BitmapFactory.decodeStream(inputStream))
 
