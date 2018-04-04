@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">ElderLauncher</string>
+    <string name="more">more</string>
+    <string name="game">Game</string>
+    <string name="contact">Contact</string>
+    <string name="note">Note</string>
+    <string name="start">Start</string>
+    <string name="time">PM</string>
+    <string name="simple">Simple</string>
+    <string name="hard">Hard</string>
+    <string name="middle">Middle</string>
+    <string name="train">Touch Train</string>
+
+
+</resources>

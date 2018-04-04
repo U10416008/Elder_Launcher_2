@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="button" type="id">1</item>
+    <item name="chat" type="id">2</item>
+    <item name="game" type="id">3</item>
+    <item name="more" type="id">4</item>
+    <item name="contacts" type="id">5</item>
+    <item name="play" type="id">6</item>
+    <item name="image1" type="id">7</item>
+    <item name="image2" type="id">8</item>
+    <item name="image3" type="id">9</item>
+    <item name="image4" type="id">10</item>
+    <item name="image5" type="id">11</item>
+    <item name="image6" type="id">12</item>
+    <item name="question" type="id">13</item>
+    <item name="game_home" type="id">14</item>
+    <item name="simple" type="id">15</item>
+    <item name="middle" type="id">16</item>
+    <item name="hard" type="id">17</item>
+
+
+
+</resources>
