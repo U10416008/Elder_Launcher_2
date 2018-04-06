@@ -21,16 +21,15 @@ import java.util.ArrayList
 class ContactsAdapter(val list: ArrayList<Contacts>) : RecyclerView.Adapter<ContactsAdapter.ContactsViewHolder>(), View.OnClickListener {
 
 
+
+
+    private var onRecyclerViewListener: OnRecyclerViewListener? = null
     override fun onClick(v: View) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
         if (onRecyclerViewListener != null) {
             onRecyclerViewListener!!.onItemClick(v, v.tag as Int)
 
         }
     }
-
-    private var onRecyclerViewListener: OnRecyclerViewListener? = null
-
     interface OnRecyclerViewListener {
         fun onItemClick(v: View, position: Int)
         fun onItemLongClick(position: Int): Boolean

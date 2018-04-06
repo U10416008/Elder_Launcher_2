@@ -3,10 +3,11 @@ package com.example.dingjie.elder_launcher_2.Contact
 import android.Manifest
 import android.app.Activity
 import android.app.AlertDialog
-import android.content.ContentUris
-import android.content.DialogInterface
-import android.content.Intent
+import android.content.*
 import android.content.pm.PackageManager
+import android.content.res.Resources
+import android.database.Cursor
+import android.database.SQLException
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.drawable.BitmapDrawable
@@ -28,10 +29,7 @@ import com.example.dingjie.elder_launcher_2.R
 import org.jetbrains.anko.activityManager
 import org.jetbrains.anko.selector
 import org.jetbrains.anko.toast
-import java.io.File
-import java.io.FileNotFoundException
-import java.io.FileOutputStream
-import java.io.InputStream
+import java.io.*
 
 import java.util.ArrayList
 
@@ -47,7 +45,9 @@ class ContactActivity : AppCompatActivity() {
     internal val MY_CALL_PHONE = 4
     internal val MY_ExternalStorage = 6
     internal val IMAGE_GALLERY_REQUEST = 5
+    internal val CAMERA_REQUEST = 7
 
+    var currentID : Long = -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -68,36 +68,40 @@ class ContactActivity : AppCompatActivity() {
         val layoutManager = GridLayoutManager(this, 2)
         listView.layoutManager = layoutManager
         contact()
+        contacts_list.add(Contacts(getString(R.string.add_contact),"0",resources.getDrawable(R.drawable.add_contact,null)))
         adapter = ContactsAdapter(contacts_list)
         listView.adapter = adapter
         adapter.setOnRecyclerViewListener(object : ContactsAdapter.OnRecyclerViewListener {
             override fun onItemClick(view: View, position: Int) {
 
                 val callContacts = contacts_list[position]
+                currentID =position.toLong()+1
 
             }
 
             override fun onItemLongClick(position: Int): Boolean {
-
+                currentID = position.toLong()+1
                 selector(getString(R.string.INFO), items, { dialogInterface, i ->
-                    if(i == 0){
+                    when (i) {
+                        0 -> {
 
-                        selector("How to Change", items2, { dialogInterface, i ->
-                            if(i == 0){
-                                dialogInterface.dismiss()
-                            }else{
-                                onImageGallerySelected()
-                                dialogInterface.dismiss()
-                            }
-                        })
-                        dialogInterface.dismiss()
+                            selector("How to Change", items2, { dialogInterface2, pos ->
+                                when (pos) {
+                                    0 -> {
+                                        onCameraSelected()
+                                        dialogInterface2.dismiss()
+                                    }
+                                    else -> {
+                                        onImageGallerySelected()
+                                        dialogInterface2.dismiss()
+                                    }
+                                }
+                            })
+                            dialogInterface.dismiss()
 
-                    }else if(i ==1){
-
-                        dialogInterface.dismiss()
-
-                    }else{
-                        dialogInterface.dismiss()
+                        }
+                        1 -> dialogInterface.dismiss()
+                        else -> dialogInterface.dismiss()
                     }
 
                 })
@@ -106,6 +110,10 @@ class ContactActivity : AppCompatActivity() {
                 return false
             }
         })
+    }
+    fun onCameraSelected(){
+        var cameraIntent = Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+        startActivityForResult(cameraIntent, CAMERA_REQUEST);
     }
     fun onImageGallerySelected(){
         var photoPicker = Intent(Intent.ACTION_PICK)
@@ -117,36 +125,30 @@ class ContactActivity : AppCompatActivity() {
         super.onActivityResult(requestCode, resultCode, data)
         when(requestCode){
             IMAGE_GALLERY_REQUEST -> try{
-                val inputStream = contentResolver.openInputStream(data?.data)
-                var file = getFile()
-                val fileOutputStream = FileOutputStream(file)
-                val buffer = ByteArray(1024)
-                var byteRead : Int
-                while(true){
-                    byteRead = inputStream.read(buffer)
-                    if(byteRead == -1) break;
-                    fileOutputStream.write(buffer,0,byteRead)
-                }
-                fileOutputStream.close()
-                inputStream!!.close()
+                //val bitmap = BitmapFactory.decodeResource(resources,R.drawable.play_button)
+                val bitmap = MediaStore.Images.Media.getBitmap(contentResolver, data?.data)
+                var image = ByteArrayOutputStream()
+                bitmap.compress(Bitmap.CompressFormat.PNG,100,image)
+                setContactPicture(this,currentID.toString(),image)
+                contacts_list[currentID.toInt()-1].image = BitmapDrawable(resources, bitmap)
 
+                adapter.notifyDataSetChanged()
             }catch(e : Exception){
                 Log.e("","Error file")
+            }
+            CAMERA_REQUEST ->{
+                var photo = data?.extras?.get("data") as Bitmap
+                var image = ByteArrayOutputStream()
+                photo.compress(Bitmap.CompressFormat.PNG,100,image)
+                setContactPicture(this,currentID.toString(),image)
+                contacts_list[currentID.toInt()-1].image = BitmapDrawable(resources, photo)
+                adapter.notifyDataSetChanged()
+
             }
         }
 
     }
-    fun getFile():File?{
-        val fileDir = File(""+Environment.getExternalStorageDirectory()+"/Android/data/"
-        +applicationContext.packageName+"/Files")
 
-        if(!fileDir.exists()){
-            if(!fileDir.mkdirs())
-                return null
-        }
-        val mediaFile = File(fileDir.path+File.separator+"temp.jpg")
-        return mediaFile
-    }
     fun callAlert(name: String, number: String) {
         AlertDialog.Builder(this)
                 .setMessage("Call $name ?")
@@ -173,14 +175,14 @@ class ContactActivity : AppCompatActivity() {
             }
             MY_CALL_PHONE -> {
                 if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this,
-                                Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this,
-                                Manifest.permission.CALL_PHONE) == PackageManager.PERMISSION_GRANTED) {
+                                Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                     ActivityCompat.requestPermissions(this,
                             arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
                             MY_ExternalStorage)
                 }
                 return
             }
+
             MY_ExternalStorage ->{
                 if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this,
                                 Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this,
@@ -254,14 +256,68 @@ class ContactActivity : AppCompatActivity() {
                     arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
                     MY_ExternalStorage)
         }
+
         if (ContextCompat.checkSelfPermission(this,
                         Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this,
                         Manifest.permission.CALL_PHONE) == PackageManager.PERMISSION_GRANTED&& ContextCompat.checkSelfPermission(this,
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED&& ContextCompat.checkSelfPermission(this,
+                        Manifest.permission.WRITE_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
             Log.d("permission", "pass")
             return true
         }
         return false
+    }
+    fun setContactPicture(context:Context ,id : String,bitmap:ByteArrayOutputStream){
+        val cr = context.contentResolver
+        val rawContactUri = getPicture(context , id)
+        if(rawContactUri == null){
+            Log.e("rawContactUri", "is null");
+            return;
+        }
+        val values = ContentValues()
+        var photoRow = -1
+        var where = ContactsContract.Data.RAW_CONTACT_ID + " == " +
+                ContentUris.parseId(rawContactUri) + " AND " + ContactsContract.RawContacts.Data.MIMETYPE + "=='" +
+                ContactsContract.CommonDataKinds.Photo.CONTENT_ITEM_TYPE + "'"
+        var cursor = cr.query(ContactsContract.Data.CONTENT_URI,	null, where, null, null);
+        var idIdx  = cursor.getColumnIndexOrThrow(ContactsContract.Data._ID)
+        if(cursor.moveToFirst()){
+            photoRow = cursor.getInt(idIdx);
+        }
+        cursor.close();
+		values.put(ContactsContract.Data.RAW_CONTACT_ID,
+				ContentUris.parseId(rawContactUri));
+		values.put(ContactsContract.Data.IS_SUPER_PRIMARY, 1);
+		values.put(ContactsContract.CommonDataKinds.Photo.PHOTO,bitmap.toByteArray() );
+		values.put(ContactsContract.Data.MIMETYPE,
+				ContactsContract.CommonDataKinds.Photo.CONTENT_ITEM_TYPE);
+		try{
+			if(photoRow >= 0){
+				cr.update(
+						ContactsContract.Data.CONTENT_URI,
+						values,
+						ContactsContract.Data._ID + " = " + photoRow, null);
+			} else {
+				cr.insert(
+						ContactsContract.Data.CONTENT_URI,
+						values);
+			}
+		}catch(dIOe : SQLException){
+			//TODO: should show this to the user..
+			dIOe.printStackTrace();
+		}
+    }
+    fun getPicture(context:Context, id:String) : Uri? {
+        var cr = context.contentResolver
+        var rawContactUri : Uri? = null
+        var rawContactCursor = cr.query(ContactsContract.RawContacts.CONTENT_URI, arrayOf( ContactsContract.RawContacts._ID) , ContactsContract.RawContacts.CONTACT_ID + " = " + id, null, null);
+        if(!rawContactCursor.isAfterLast()) {
+            rawContactCursor.moveToFirst();
+            rawContactUri = ContactsContract.RawContacts.CONTENT_URI.buildUpon().appendPath(""+rawContactCursor.getLong(0)).build();
+        }
+        rawContactCursor.close()
+
+        return rawContactUri
     }
 }
 
