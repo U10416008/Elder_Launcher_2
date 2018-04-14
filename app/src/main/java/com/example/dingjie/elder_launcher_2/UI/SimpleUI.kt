@@ -35,7 +35,6 @@ class SimpleUI: AnkoComponent<SimpleGame> {
                 }.lparams {
                     //width = MainActivity.screenWidth / 3
                     //height = MainActivity.screenHeight / 3
-                    weight = 0.5f
 
                 }
                 linearLayout() {
@@ -47,7 +46,6 @@ class SimpleUI: AnkoComponent<SimpleGame> {
                 }.lparams {
                     //width = MainActivity.screenWidth/3
                     //height =  MainActivity.screenWidth/3
-                    weight = 0.5f
 
                 }
             }.lparams(width = matchParent , height = matchParent,weight = 0.3f )
@@ -63,7 +61,6 @@ class SimpleUI: AnkoComponent<SimpleGame> {
                 }.lparams {
                     //width = MainActivity.screenWidth / 3
                     //height = MainActivity.screenHeight / 3
-                    weight = 0.5f
 
                 }
                 linearLayout() {
@@ -74,7 +71,6 @@ class SimpleUI: AnkoComponent<SimpleGame> {
                 }.lparams {
                     //width = MainActivity.screenWidth/3
                     //height =  MainActivity.screenWidth/3
-                    weight = 0.5f
 
                 }
             }.lparams(width = matchParent , height = matchParent,weight = 0.3f )

@@ -41,11 +41,13 @@ class ContactActivity : AppCompatActivity() {
     internal lateinit var listView: RecyclerView
     internal lateinit var adapter: ContactsAdapter
     internal var contacts_list = ArrayList<Contacts>()
+    internal val MY_RECORD_AUDIO = 2
     internal val MY_READ_CONTACT = 3
     internal val MY_CALL_PHONE = 4
     internal val MY_ExternalStorage = 6
     internal val IMAGE_GALLERY_REQUEST = 5
     internal val CAMERA_REQUEST = 7
+    internal val RECORD = 8
 
     var currentID : Long = -1
 
@@ -100,8 +102,13 @@ class ContactActivity : AppCompatActivity() {
                             dialogInterface.dismiss()
 
                         }
-                        1 -> dialogInterface.dismiss()
-                        else -> dialogInterface.dismiss()
+                        1 -> {
+                            onRecordSelected(contacts_list[position].name+currentID)
+                            dialogInterface.dismiss()
+                        }
+                        else -> {
+                            dialogInterface.dismiss()
+                        }
                     }
 
                 })
@@ -119,6 +126,11 @@ class ContactActivity : AppCompatActivity() {
         var photoPicker = Intent(Intent.ACTION_PICK)
         photoPicker.type = "image/*"
         startActivityForResult(photoPicker,IMAGE_GALLERY_REQUEST)
+    }
+    fun onRecordSelected(id:String){
+        val record = Intent(this,AudioRecordActivity::class.java)
+        record.putExtra("contact",id)
+        startActivity(record)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -143,6 +155,9 @@ class ContactActivity : AppCompatActivity() {
                 setContactPicture(this,currentID.toString(),image)
                 contacts_list[currentID.toInt()-1].image = BitmapDrawable(resources, photo)
                 adapter.notifyDataSetChanged()
+
+            }
+            RECORD ->{
 
             }
         }
@@ -174,6 +189,15 @@ class ContactActivity : AppCompatActivity() {
                 return
             }
             MY_CALL_PHONE -> {
+                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this,
+                                Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(this,
+                            arrayOf(Manifest.permission.RECORD_AUDIO),
+                            MY_RECORD_AUDIO)
+                }
+                return
+            }
+            MY_RECORD_AUDIO ->{
                 if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this,
                                 Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                     ActivityCompat.requestPermissions(this,
@@ -256,12 +280,17 @@ class ContactActivity : AppCompatActivity() {
                     arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
                     MY_ExternalStorage)
         }
-
+        if (ContextCompat.checkSelfPermission(this,
+                        Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    arrayOf(Manifest.permission.RECORD_AUDIO),
+                    MY_RECORD_AUDIO)
+        }
         if (ContextCompat.checkSelfPermission(this,
                         Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this,
                         Manifest.permission.CALL_PHONE) == PackageManager.PERMISSION_GRANTED&& ContextCompat.checkSelfPermission(this,
                         Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED&& ContextCompat.checkSelfPermission(this,
-                        Manifest.permission.WRITE_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
+                        Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
             Log.d("permission", "pass")
             return true
         }

@@ -17,6 +17,9 @@
     <item name="simple" type="id">15</item>
     <item name="middle" type="id">16</item>
     <item name="hard" type="id">17</item>
+    <item name="play_record" type="id">18</item>
+    <item name="start_record" type="id">19</item>
+    <item name="seek" type="id">20</item>
 
 
 

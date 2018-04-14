@@ -12,18 +12,21 @@ import android.graphics.BitmapFactory
 import android.provider.ContactsContract
 import android.content.ContentUris
 import android.graphics.Bitmap
+import com.example.dingjie.elder_launcher_2.Contact.Contacts
 import java.io.IOException
 import kotlin.collections.ArrayList
 import com.example.dingjie.elder_launcher_2.MainActivity
 import org.jetbrains.anko.*
+import java.io.File
 
 
 class SimpleGame : AppCompatActivity() {
     var mode : String = ""
     lateinit var images : Array<ImageView>
-    var photo: ArrayList<Bitmap> = ArrayList()
+    var photo: ArrayList<Contacts> = ArrayList()
     var random :Random = Random()
-
+    var mFileName :String =""
+    var answer :Int = 0
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         var intent = getIntent()
@@ -54,12 +57,12 @@ class SimpleGame : AppCompatActivity() {
         }
         for(i in images.indices){
             images[i].setOnClickListener {
-                if(i !=0)
-                    if(images[i].drawable == images[0].drawable){
-                        if(mode != "Hard")
-                            randomImage()
-
-                    }
+                if(i == answer){
+                    if(mode != "Hard")
+                        randomImage()
+                    else
+                        randomRecord()
+                }
                 //else
             }
             if(i == 0 )
@@ -73,31 +76,56 @@ class SimpleGame : AppCompatActivity() {
         //first
         if(mode != "Hard")
             randomImage()
+        else{
+            randomRecord()
+        }
+
+
+    }
+    fun randomRecord(){
+        mFileName = externalCacheDir.absolutePath
+        var photo_answer: Int
+        do {
+            photo_answer = random.nextInt(photo.size)
+            var mFileName2 = "$mFileName/${photo[photo_answer].name}${photo[photo_answer].number}.3gp"
+            var file = File(mFileName2)
+            Log.d("filename",mFileName2)
+
+        }
+        while(!file.exists())
+        mFileName = "$mFileName/${photo[photo_answer].name}${photo[photo_answer].number}.3gp"
+        answer = random.nextInt(images.size-1)+1
+        random_image(answer,photo_answer)
 
     }
     fun randomImage(){
         var photo_answer = random.nextInt(photo.size)
 
-        images[0].setImageBitmap(photo.get(photo_answer))
+        images[0].setImageBitmap(photo.get(photo_answer).bitmap)
 
-        var answer = random.nextInt(images.size-1)+1
+        answer = random.nextInt(images.size-1)+1
+        random_image(answer,photo_answer)
+        if(mode == "Simple")
+            randomShow()
+    }
+    fun random_image(answer :Int ,answer_photo : Int){
         for(i in images.indices){
             //image.visibility = View.VISIBLE
             if(i != 0 ) {
                 if (i == answer) {
-                    images[i].setImageDrawable(images[0].drawable)
+                    if(mode != "Hard")
+                        images[i].setImageDrawable(images[0].drawable)
+                    else
+                        images[i].setImageBitmap(photo[answer_photo].bitmap)
                 } else {
-                    images[i].setImageBitmap(photo.get(random_question(photo_answer)))
+                    images[i].setImageBitmap(photo.get(random_question(answer_photo)).bitmap)
                 }
 
 
             }
 
         }
-        if(mode == "Simple")
-            randomShow()
     }
-
     fun random_question(answer_photo : Int) : Int{
         var question = random.nextInt(photo.size)
         while(answer_photo ==question )
@@ -117,18 +145,18 @@ class SimpleGame : AppCompatActivity() {
     }
 
     private fun retrieveContactPhoto() {
-        var contactIDs: ArrayList<Long> = getContactIDs()
+        photo = getContactIDs()
 
 
         try {
-            for (contactID in contactIDs) {
+            for (contactID in photo) {
 
                 val inputStream = ContactsContract.Contacts.openContactPhotoInputStream(contentResolver,
-                        ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI, contactID))
+                        ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI, contactID.number.toLong()))
                 if (inputStream != null) {
-                    photo.add(BitmapFactory.decodeStream(inputStream))
-
+                    contactID.bitmap = BitmapFactory.decodeStream(inputStream)
                     Log.d("photo",""+photo.size)
+
                     //val imageView = findViewById(R.id.img_contact) as ImageView
                     //imageView.setImageBitmap(photo)
 
@@ -137,6 +165,8 @@ class SimpleGame : AppCompatActivity() {
 
 
             }
+            photo = photo.filter{it.bitmap != null} as ArrayList<Contacts>
+            Log.d("photo",""+photo.size)
         } catch (e: IOException) {
             e.printStackTrace()
         }
@@ -144,12 +174,12 @@ class SimpleGame : AppCompatActivity() {
     }
 
 
-    fun getContactIDs(): ArrayList<Long>{
+    fun getContactIDs(): ArrayList<Contacts>{
         val c = contentResolver.query(ContactsContract.Contacts.CONTENT_URI, null, null, null, null)
-        var contactIDs: ArrayList<Long> = arrayListOf()
+        var contactIDs: ArrayList<Contacts> = arrayListOf()
         if(c.count >0){
             while (c.moveToNext()) {
-                contactIDs.add(c.getString(c.getColumnIndex(ContactsContract.Contacts._ID)).toLong())
+                contactIDs.add(Contacts(c.getString(c.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME)),c.getString(c.getColumnIndex(ContactsContract.Contacts._ID))))
                 Log.d("ContactID",c.getString(c.getColumnIndex(ContactsContract.Contacts._ID)))
             }
         }
