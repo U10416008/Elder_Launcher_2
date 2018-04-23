@@ -6,12 +6,15 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.widget.Button
 import android.widget.ImageView
+import android.widget.TextView
 import com.example.dingjie.elder_launcher_2.Contact.ContactActivity
 import com.example.dingjie.elder_launcher_2.Game.GameActivity
 import com.example.dingjie.elder_launcher_2.UI.MainActivityUI
 import org.jetbrains.anko.*
 
 import java.net.Socket
+import java.text.SimpleDateFormat
+import java.util.*
 
 
 class MainActivity : AppCompatActivity() {
@@ -22,6 +25,8 @@ class MainActivity : AppCompatActivity() {
     internal lateinit var contact: ImageView
     internal lateinit var chat: ImageView
     internal lateinit var game: ImageView
+    var timeText : TextView?  = null
+    var time = Calendar.getInstance().time;
     override fun onCreate(savedIntanceState: Bundle?) {
         super.onCreate(savedIntanceState)
         MainActivityUI().setContentView(this)
@@ -34,6 +39,7 @@ class MainActivity : AppCompatActivity() {
         initMore()
         initContacts()
         initServer()
+        //initTime()
 
     }
 
@@ -100,6 +106,10 @@ class MainActivity : AppCompatActivity() {
         })
 
         client.connect()
+    }
+    fun initTime(){
+        timeText = find<TextView>(R.id.time)
+        timeText?.text = time.toString()
     }
 
     companion object {

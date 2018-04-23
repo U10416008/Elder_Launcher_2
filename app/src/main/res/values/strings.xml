@@ -18,6 +18,8 @@
     <string name="record">Record</string>
     <string name="add_contact">New Contact</string>
     <string name="store">Store</string>
+    <string name="back">BACK</string>
+    <string name="call">CALL</string>
 
 
 </resources>

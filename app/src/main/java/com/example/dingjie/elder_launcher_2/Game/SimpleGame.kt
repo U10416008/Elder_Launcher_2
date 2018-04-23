@@ -12,6 +12,7 @@ import android.graphics.BitmapFactory
 import android.provider.ContactsContract
 import android.content.ContentUris
 import android.graphics.Bitmap
+import android.media.MediaPlayer
 import com.example.dingjie.elder_launcher_2.Contact.Contacts
 import java.io.IOException
 import kotlin.collections.ArrayList
@@ -23,10 +24,13 @@ import java.io.File
 class SimpleGame : AppCompatActivity() {
     var mode : String = ""
     lateinit var images : Array<ImageView>
+    var mediaPlayer : MediaPlayer? = null
     var photo: ArrayList<Contacts> = ArrayList()
     var random :Random = Random()
     var mFileName :String =""
     var answer :Int = 0
+    var photo_answer: Int = 0
+    var prepared = false
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         var intent = getIntent()
@@ -60,15 +64,25 @@ class SimpleGame : AppCompatActivity() {
                 if(i == answer){
                     if(mode != "Hard")
                         randomImage()
-                    else
+                    else {
+                        if(prepared){
+                            stopPlayer()
+                        }
                         randomRecord()
+                    }
+                }
+                if(i == 0 ){
+                    if(mode == "Hard"){
+
+                        play()
+                    }
                 }
                 //else
             }
-            if(i == 0 )
-                continue
-            images[i].layoutParams.height = MainActivity.screenHeight / 3
-            images[i].layoutParams.width = MainActivity.screenWidth / 2
+            if(i != 0 ) {
+                images[i].layoutParams.height = MainActivity.screenHeight / 3
+                images[i].layoutParams.width = MainActivity.screenWidth / 2
+            }
             if(mode != "Simple"){
                 images[i].visibility = View.VISIBLE
             }
@@ -82,18 +96,58 @@ class SimpleGame : AppCompatActivity() {
 
 
     }
+    fun play(){
+        if(mediaPlayer == null) {
+            mediaPlayer = MediaPlayer()
+            mediaPlayer!!.setOnPreparedListener(playerPreparedHandler)
+            mediaPlayer!!.setOnCompletionListener {
+                stopPlayer()
+            }
+        }
+        if(mediaPlayer!!.isPlaying){
+            mediaPlayer?.pause()
+            images[0].setImageResource(R.drawable.play_button)
+        }else if(!prepared){
+            images[0].setImageResource(R.drawable.pause)
+            try {
+                mediaPlayer?.setDataSource(mFileName)
+                mediaPlayer?.prepare()
+                prepared = true
+            } catch(e: Exception) {
+                Log.e("PlayRecording","Failed")
+            }
+        }else{
+            mediaPlayer?.start()
+            images[0].setImageResource(R.drawable.pause)
+
+        }
+    }
+    private fun stopPlayer() {
+        mediaPlayer?.release()
+        prepared = false
+        mediaPlayer = null
+        images[0].setImageResource(R.drawable.play_button)
+
+
+    }
+    private var playerPreparedHandler = MediaPlayer.OnPreparedListener {
+        mediaPlayer?.start()
+    }
     fun randomRecord(){
         mFileName = externalCacheDir.absolutePath
-        var photo_answer: Int
+
         do {
             photo_answer = random.nextInt(photo.size)
             var mFileName2 = "$mFileName/${photo[photo_answer].name}${photo[photo_answer].number}.3gp"
-            var file = File(mFileName2)
-            Log.d("filename",mFileName2)
 
+            Log.d("filename",mFileName2)
+            if(File(mFileName2).exists()){
+                mFileName = mFileName2
+                break
+            }
         }
-        while(!file.exists())
-        mFileName = "$mFileName/${photo[photo_answer].name}${photo[photo_answer].number}.3gp"
+        while(true)
+        //mFileName = "$mFileName/${photo[photo_answer].name}${photo[photo_answer].number}.3gp"
         answer = random.nextInt(images.size-1)+1
         random_image(answer,photo_answer)
 

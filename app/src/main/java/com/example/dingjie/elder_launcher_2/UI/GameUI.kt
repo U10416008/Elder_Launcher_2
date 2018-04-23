@@ -18,6 +18,7 @@ class GameUI : AnkoComponent<GameActivity>{
                 textView(R.string.train) {
                     setTypeface(chango)
                     textSize = 50f
+
                 }
 
                 button(R.string.simple) {

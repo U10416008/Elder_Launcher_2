@@ -5,6 +5,8 @@ import android.graphics.Typeface
 import android.support.v4.content.res.ResourcesCompat
 import android.view.Gravity
 import android.view.View
+import android.widget.ImageView
+import android.widget.TextClock
 import android.widget.TextView
 import com.example.dingjie.elder_launcher_2.MainActivity
 import com.example.dingjie.elder_launcher_2.R
@@ -24,18 +26,11 @@ class MainActivityUI : AnkoComponent<MainActivity> {
             gravity = Gravity.CENTER
             padding = dip(20)
             linearLayout{
-                textView {
+                textClock {
                     typeface= chango
-                    text = "12:00"
                     textColor = Color.YELLOW
-                }.lparams(height = wrapContent , width = wrapContent , weight = 0.35f)
-                textView {
-                    typeface= chango
-                    textResource = R.string.time
-                    textColor = Color.YELLOW
-
-
-                }.lparams(height = wrapContent , width = wrapContent , weight = 0.35f)
+                    textSize =40f
+                }.lparams(height = wrapContent , width = wrapContent , weight = 0.70f)
                 button("SOS" ) {
 
                     id = R.id.button
@@ -106,7 +101,7 @@ class MainActivityUI : AnkoComponent<MainActivity> {
                 }
                 verticalLayout {
                     imageView {
-                       imageResource = R.drawable.contacts
+                        imageResource = R.drawable.contacts
                         id = R.id.more
 
                     }
