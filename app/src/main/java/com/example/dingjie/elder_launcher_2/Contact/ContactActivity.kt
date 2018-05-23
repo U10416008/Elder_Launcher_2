@@ -42,9 +42,12 @@ class ContactActivity : AppCompatActivity() {
     internal val MY_READ_CONTACT = 3
     internal val MY_CALL_PHONE = 4
     internal val MY_ExternalStorage = 6
+    internal val MY_READ_PHONE_STATE = 9
+
     internal val IMAGE_GALLERY_REQUEST = 5
     internal val CAMERA_REQUEST = 7
     internal val RECORD = 8
+
 
     var currentID : Long = -1
 
@@ -75,6 +78,7 @@ class ContactActivity : AppCompatActivity() {
             override fun onItemClick(view: View, position: Int) {
                 if(position != contacts_list.size-1) {
                     val callContacts = contacts_list[position]
+                    makeCall(callContacts.number)
                     currentID = position.toLong() + 1
                 }else{
                     addDialog()
@@ -268,6 +272,15 @@ class ContactActivity : AppCompatActivity() {
             }
             MY_RECORD_AUDIO ->{
                 if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this,
+                                Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(this,
+                            arrayOf(Manifest.permission.READ_PHONE_STATE),
+                            MY_ExternalStorage)
+                }
+                return
+            }
+            MY_READ_PHONE_STATE ->{
+                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this,
                                 Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                     ActivityCompat.requestPermissions(this,
                             arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
@@ -357,10 +370,17 @@ class ContactActivity : AppCompatActivity() {
                     MY_RECORD_AUDIO)
         }
         if (ContextCompat.checkSelfPermission(this,
+                        Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    arrayOf(Manifest.permission.READ_PHONE_STATE),
+                    MY_READ_PHONE_STATE)
+        }
+        if (ContextCompat.checkSelfPermission(this,
                         Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this,
                         Manifest.permission.CALL_PHONE) == PackageManager.PERMISSION_GRANTED&& ContextCompat.checkSelfPermission(this,
                         Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED&& ContextCompat.checkSelfPermission(this,
-                        Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
+                        Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this,
+                        Manifest.permission.READ_PHONE_STATE)== PackageManager.PERMISSION_GRANTED) {
             Log.d("permission", "pass")
             return true
         }

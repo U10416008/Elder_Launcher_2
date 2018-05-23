@@ -1,21 +1,24 @@
 package com.example.dingjie.elder_launcher_2.UI
 
+import android.content.Intent
+import android.net.Uri
 import android.view.Gravity
 import android.view.View
 import android.widget.Button
 import android.widget.GridLayout
 import android.widget.TextView
+import com.example.dingjie.elder_launcher_2.Contact.ContactKeyBoard
 import com.example.dingjie.elder_launcher_2.MainActivity
 import com.example.dingjie.elder_launcher_2.R
 import org.jetbrains.anko.*
 
-class KeyBoard<T>:AnkoComponent<T>{
+class KeyBoard:AnkoComponent<ContactKeyBoard>{
     private val customStyle = { v: Any ->
         when (v) {
             is Button -> v.textSize = 60f
         }
     }
-    override fun createView(ui: AnkoContext<T>): View = with(ui){
+    override fun createView(ui: AnkoContext<ContactKeyBoard>): View = with(ui){
         verticalLayout {
             var number : TextView? = null
             linearLayout() {
@@ -112,7 +115,10 @@ class KeyBoard<T>:AnkoComponent<T>{
                     weight = 1f
                 }
                 button(R.string.call) {
+                        setOnClickListener{
 
+                            makeCall(number!!.text.toString())
+                        }
                 }.lparams {
                     height = matchParent
                     width = matchParent

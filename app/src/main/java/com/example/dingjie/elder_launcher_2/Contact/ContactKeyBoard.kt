@@ -8,7 +8,7 @@ import org.jetbrains.anko.setContentView
 class ContactKeyBoard:AppCompatActivity(){
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        KeyBoard<ContactKeyBoard>().setContentView(this)
+        KeyBoard().setContentView(this)
 
     }
 }

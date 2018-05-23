@@ -2,6 +2,9 @@ package com.example.dingjie.elder_launcher_2
 
 import android.content.Intent
 import android.content.res.Resources
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.widget.Button
@@ -11,15 +14,18 @@ import com.example.dingjie.elder_launcher_2.Contact.ContactActivity
 import com.example.dingjie.elder_launcher_2.Game.GameActivity
 import com.example.dingjie.elder_launcher_2.UI.MainActivityUI
 import org.jetbrains.anko.*
-
-import java.net.Socket
-import java.text.SimpleDateFormat
 import java.util.*
+import android.content.pm.PackageManager
+import android.net.Uri
+import android.util.Log
+import android.widget.Toast
 
 
-class MainActivity : AppCompatActivity() {
 
-    internal val client = Client("10.102.3.226", 1234)
+
+class MainActivity : AppCompatActivity(),SensorEventListener {
+
+
     internal lateinit var button: Button
     internal lateinit var more: ImageView
     internal lateinit var contact: ImageView
@@ -27,6 +33,8 @@ class MainActivity : AppCompatActivity() {
     internal lateinit var game: ImageView
     var timeText : TextView?  = null
     var time = Calendar.getInstance().time;
+
+
     override fun onCreate(savedIntanceState: Bundle?) {
         super.onCreate(savedIntanceState)
         MainActivityUI().setContentView(this)
@@ -38,11 +46,39 @@ class MainActivity : AppCompatActivity() {
         initGame()
         initMore()
         initContacts()
-        initServer()
+        val isAppInstalled = appInstalledOrNot("jp.naver.line.android")
+
+        if (isAppInstalled) {
+            //This intent will help you to launch if the package is already installed
+            val LaunchIntent = packageManager
+                    .getLaunchIntentForPackage("jp.naver.line.android")
+            startActivity(LaunchIntent)
+
+            Log.i("Application"," is already installed.")
+        } else {
+            // Do whatever we want to do if application not installed
+            // For example, Redirect to play store
+            try {
+                val viewIntent = Intent("android.intent.action.VIEW",
+                        Uri.parse("https://play.google.com/store/apps/details?id=jp.naver.line.android"))
+                startActivity(viewIntent)
+            } catch (e: Exception) {
+
+                toast("Unable to Connect Try Again...")
+                e.printStackTrace()
+            }
+
+
+            Log.i("Application"," is not currently installed.")
+        }
         //initTime()
 
     }
+    override fun onSensorChanged(p0: SensorEvent?) {
+    }
 
+    override fun onAccuracyChanged(p0: Sensor?, p1: Int) {
+    }
     fun initChat() {
         chat = find(R.id.chat)
         chat.layoutParams.height = screenHeight / 3
@@ -89,29 +125,22 @@ class MainActivity : AppCompatActivity() {
         more.setOnLongClickListener { false }
     }
 
-    fun initServer() {
-        client.setClientCallback(object : Client.ClientCallback {
-            override fun onMessage(message: String) {}
 
-            override fun onConnect(socket: Socket?) {
-
-                client.send("Hello World!\n")
-                client.send("0910832632")
-                //client.disconnect();
-            }
-
-            override fun onDisconnect(socket: Socket?, message: String) {}
-
-            override fun onConnectError(socket: Socket?, message: String) {}
-        })
-
-        client.connect()
-    }
     fun initTime(){
         timeText = find<TextView>(R.id.time)
         timeText?.text = time.toString()
     }
 
+    private fun appInstalledOrNot(uri: String): Boolean {
+        val pm = packageManager
+        try {
+            pm.getPackageInfo(uri, PackageManager.GET_ACTIVITIES)
+            return true
+        } catch (e: PackageManager.NameNotFoundException) {
+        }
+
+        return false
+    }
     companion object {
         val screenWidth: Int
             get() = Resources.getSystem().displayMetrics.widthPixels
