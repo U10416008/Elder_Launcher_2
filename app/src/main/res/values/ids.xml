@@ -22,6 +22,7 @@
     <item name="seek" type="id">20</item>
     <item name="time" type="id">21</item>
     <item name="numberText" type="id">22</item>
+    <item name="remind_recycle" type="id">23</item>
 
 
 

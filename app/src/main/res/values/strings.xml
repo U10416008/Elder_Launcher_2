@@ -20,6 +20,8 @@
     <string name="store">Store</string>
     <string name="back">BACK</string>
     <string name="call">CALL</string>
+    <string name="needToDo">Need To Do</string>
+    <string name="add">Add</string>
 
 
 </resources>

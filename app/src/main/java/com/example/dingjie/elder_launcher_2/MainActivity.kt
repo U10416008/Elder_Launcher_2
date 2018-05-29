@@ -19,8 +19,7 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.util.Log
 import android.widget.Toast
-
-
+import com.example.dingjie.elder_launcher_2.reminder.RemindApp
 
 
 class MainActivity : AppCompatActivity(),SensorEventListener {
@@ -46,7 +45,7 @@ class MainActivity : AppCompatActivity(),SensorEventListener {
         initGame()
         initMore()
         initContacts()
-        val isAppInstalled = appInstalledOrNot("jp.naver.line.android")
+        /*val isAppInstalled = appInstalledOrNot("jp.naver.line.android")
 
         if (isAppInstalled) {
             //This intent will help you to launch if the package is already installed
@@ -70,7 +69,7 @@ class MainActivity : AppCompatActivity(),SensorEventListener {
 
 
             Log.i("Application"," is not currently installed.")
-        }
+        }*/
         //initTime()
 
     }
@@ -85,7 +84,7 @@ class MainActivity : AppCompatActivity(),SensorEventListener {
         chat.layoutParams.width = screenWidth / 3
         chat.setOnClickListener {
             val intent = Intent()
-            intent.setClass(this@MainActivity, ContactActivity::class.java)
+            intent.setClass(this@MainActivity, RemindApp::class.java)
             startActivity(intent)
         }
         chat.setOnLongClickListener { false }
