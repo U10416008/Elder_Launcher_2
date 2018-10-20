@@ -25,13 +25,39 @@ class Client(private val ip: String, private val port: Int) {
             val socketAddress = InetSocketAddress(ip, port)
             try {
                 socket!!.connect(socketAddress)
+                socket!!.tcpNoDelay = true
                 socketOutput = socket!!.getOutputStream()
                 socketInput = BufferedReader(InputStreamReader(socket!!.getInputStream()))
 
-                ReceiveThread().start()
-
+                //ReceiveThread().start()
+                Log.d("","thread create")
                 if (listener != null)
                     listener!!.onConnect(socket)
+
+                try {
+
+                    while (socket!!.isConnected) {
+                        try {
+                            var message = socketInput?.readLine()
+
+                            Log.d("receive", message)
+                            // each line must end with a \n to be received
+                            if (listener != null && message != null) {
+                                listener!!.onMessage(message)
+                                //Log.d("receive", message + "\n")
+                            }
+                        }catch (ex : Exception){
+                            if (listener != null)
+                                listener!!.onDisconnect(socket, ex.message!!)
+                        }
+
+
+                    }
+                } catch (e: IOException) {
+                    if (listener != null)
+                        listener!!.onDisconnect(socket, e.message!!)
+                }
+
             } catch (e: IOException) {
                 if (listener != null)
                     listener!!.onConnectError(socket, e.message!!)
@@ -64,13 +90,15 @@ class Client(private val ip: String, private val port: Int) {
         override fun run() {
             var message: String
             try {
-                message = socketInput!!.readLine()
-                while (message != null) {   // each line must end with a \n to be received
+                //message = socketInput!!.readLine()
+                while (socket!!.isConnected) {
+                    Log.d("","in while")
+                    message = socketInput!!.readLine()// each line must end with a \n to be received
                     if (listener != null) {
                         listener!!.onMessage(message)
                         Log.d("receive", message + "\n")
                     }
-                    message = socketInput!!.readLine()
+
                 }
             } catch (e: IOException) {
                 if (listener != null)

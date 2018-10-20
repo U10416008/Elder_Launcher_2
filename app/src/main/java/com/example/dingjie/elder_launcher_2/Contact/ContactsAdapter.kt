@@ -47,7 +47,7 @@ class ContactsAdapter(val list: ArrayList<Contacts>) : RecyclerView.Adapter<Cont
         return ContactsViewHolder(view)
     }
 
-    override fun onBindViewHolder(viewHolder: ContactsViewHolder?, position: Int) {
+    override fun onBindViewHolder(viewHolder: ContactsViewHolder, position: Int) {
         Log.d("TAG", "onBindViewHolder, i: $position, viewHolder: $viewHolder")
         val holder = viewHolder as ContactsViewHolder
         holder.p = position

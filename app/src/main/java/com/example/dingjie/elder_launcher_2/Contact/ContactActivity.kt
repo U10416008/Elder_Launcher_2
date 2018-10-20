@@ -88,11 +88,11 @@ class ContactActivity : AppCompatActivity() {
 
             override fun onItemLongClick(position: Int): Boolean {
                 currentID = position.toLong()+1
-                selector(getString(R.string.INFO), items, { dialogInterface, i ->
+                selector(getString(R.string.INFO), items) { dialogInterface, i ->
                     when (i) {
                         0 -> {
 
-                            selector("How to Change", items2, { dialogInterface2, pos ->
+                            selector("How to Change", items2) { dialogInterface2, pos ->
                                 when (pos) {
                                     0 -> {
                                         onCameraSelected()
@@ -103,7 +103,7 @@ class ContactActivity : AppCompatActivity() {
                                         dialogInterface2.dismiss()
                                     }
                                 }
-                            })
+                            }
                             dialogInterface.dismiss()
 
                         }
@@ -116,7 +116,7 @@ class ContactActivity : AppCompatActivity() {
                         }
                     }
 
-                })
+                }
 
 
                 return false
@@ -133,11 +133,11 @@ class ContactActivity : AppCompatActivity() {
                     val number = editText{
                         hint = "Number"
                     }
-                    positiveButton("new", {
+                    positiveButton("new") {
                         addContact(name.text.toString(),number.text.toString())
 
 
-                    })
+                    }
                 }
             }
         }.show()

@@ -21,10 +21,11 @@ class MySQLite(context: Context, name: String, factory: SQLiteDatabase.CursorFac
     internal val deleteType = 2
 
     override fun onCreate(sqLiteDatabase: SQLiteDatabase) {
-        sqLiteDatabase.execSQL("CREATE  TABLE main.misscall " +
+        sqLiteDatabase.execSQL("CREATE  TABLE main.schedule " +
                 "(_id INTEGER PRIMARY KEY  NOT NULL , " +
-                "number VARCHAR, " +
-                "time INTEGER)")
+                "hour INTEGER, " +
+                "minute INTEGER , " +
+                "schedule VARCHAR)")
     }
 
     override fun onUpgrade(sqLiteDatabase: SQLiteDatabase, i: Int, i1: Int) {

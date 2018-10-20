@@ -15,12 +15,17 @@
         android:layout_height="wrap_content"
         android:text="@string/add"
         android:id="@+id/add_thing"/>
-    <android.support.v7.widget.RecyclerView
-        android:layout_width="match_parent"
+    <android.support.v4.widget.SwipeRefreshLayout
         android:layout_height="wrap_content"
-        android:id = "@+id/remind_recycle"
-        >
+        android:layout_width="match_parent"
+        android:id = "@+id/swipe">
+        <android.support.v7.widget.RecyclerView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id = "@+id/remind_recycle"
+            >
 
 
-    </android.support.v7.widget.RecyclerView>
+        </android.support.v7.widget.RecyclerView>
+    </android.support.v4.widget.SwipeRefreshLayout>
 </LinearLayout>

@@ -1,28 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <item name="button" type="id">1</item>
-    <item name="chat" type="id">2</item>
-    <item name="game" type="id">3</item>
-    <item name="more" type="id">4</item>
-    <item name="contacts" type="id">5</item>
-    <item name="play" type="id">6</item>
-    <item name="image1" type="id">7</item>
-    <item name="image2" type="id">8</item>
-    <item name="image3" type="id">9</item>
-    <item name="image4" type="id">10</item>
-    <item name="image5" type="id">11</item>
-    <item name="image6" type="id">12</item>
-    <item name="question" type="id">13</item>
-    <item name="game_home" type="id">14</item>
-    <item name="simple" type="id">15</item>
-    <item name="middle" type="id">16</item>
-    <item name="hard" type="id">17</item>
-    <item name="play_record" type="id">18</item>
-    <item name="start_record" type="id">19</item>
-    <item name="seek" type="id">20</item>
-    <item name="time" type="id">21</item>
-    <item name="numberText" type="id">22</item>
-    <item name="remind_recycle" type="id">23</item>
+    <item name="sosbutton" type="id"/>
+    <item name="chat" type="id"/>
+    <item name="game" type="id"/>
+    <item name="more" type="id"/>
+    <item name="contacts" type="id"/>
+    <item name="play" type="id"/>
+    <item name="image1" type="id"/>
+    <item name="image2" type="id"/>
+    <item name="image3" type="id"/>
+    <item name="image4" type="id"/>
+    <item name="image5" type="id"/>
+    <item name="image6" type="id"/>
+    <item name="question" type="id"/>
+    <item name="game_home" type="id"/>
+    <item name="simple" type="id"/>
+    <item name="middle" type="id"/>
+    <item name="hard" type="id"/>
+    <item name="play_record" type="id"/>
+    <item name="start_record" type="id"/>
+    <item name="seek" type="id"/>
+    <item name="time" type="id"/>
+    <item name="numberText" type="id"/>
+    <item name="remind_recycle" type="id"/>
 
 
 

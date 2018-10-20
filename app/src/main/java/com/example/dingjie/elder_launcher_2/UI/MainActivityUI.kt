@@ -3,6 +3,7 @@ package com.example.dingjie.elder_launcher_2.UI
 import android.graphics.Color
 import android.graphics.Typeface
 import android.support.v4.content.res.ResourcesCompat
+import android.util.Log
 import android.view.Gravity
 import android.view.View
 import android.widget.ImageView
@@ -32,8 +33,7 @@ class MainActivityUI : AnkoComponent<MainActivity> {
                     textSize =40f
                 }.lparams(height = wrapContent , width = wrapContent , weight = 0.70f)
                 button("SOS" ) {
-
-                    id = R.id.button
+                    id = R.id.sosbutton
                     backgroundResource= R.drawable.sos_button
                     textAlignment = View.TEXT_ALIGNMENT_CENTER
                     //backgroundColorResource = R.color.red
