@@ -57,7 +57,7 @@ class MainActivity : AppCompatActivity(),SensorEventListener,LocationListener {
     internal lateinit var contact: ImageView
     internal lateinit var chat: ImageView
     internal lateinit var game: ImageView
-    internal val client = Client("192.168.0.182", 1234)
+    internal val client = Client("192.168.43.32", 1234)
     var timeText : TextView?  = null
     var time = Calendar.getInstance().time;
     internal val MY_LOCATION = 100
@@ -284,5 +284,6 @@ class MainActivity : AppCompatActivity(),SensorEventListener,LocationListener {
 
         val screenHeight: Int
             get() = Resources.getSystem().displayMetrics.heightPixels
+
     }
 }

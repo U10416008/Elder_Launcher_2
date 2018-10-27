@@ -18,11 +18,14 @@ import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.GridLayoutManager
+import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
+import android.text.Layout
 import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
+import android.widget.LinearLayout
 import com.example.dingjie.elder_launcher_2.R
 import org.jetbrains.anko.*
 import java.io.*
@@ -47,13 +50,14 @@ class ContactActivity : AppCompatActivity() {
     internal val IMAGE_GALLERY_REQUEST = 5
     internal val CAMERA_REQUEST = 7
     internal val RECORD = 8
-
+    val LEVEL_HARD = 0.75
 
     var currentID : Long = -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.contact)
+
         initNumberKey()
         if (checkPermission()){
             createContacts()
@@ -67,12 +71,38 @@ class ContactActivity : AppCompatActivity() {
         val items2 = listOf(getString(R.string.take_photo), getString(R.string.gallery))
         listView = findViewById(R.id.recycle)
         listView.setHasFixedSize(true)
-        val layoutManager = GridLayoutManager(this, 2)
-        listView.layoutManager = layoutManager
+        var layoutManager :RecyclerView.LayoutManager?
+        //hard view
+        var sp : SharedPreferences =getSharedPreferences("TouchAbilityHard",0)
+
         contact()
         contacts_list.add(Contacts(getString(R.string.add_contact),"0",resources.getDrawable(R.drawable.add_contact,null)))
 
         adapter = ContactsAdapter(contacts_list)
+        if (getSharedPreferences("TouchAbilityHard",0).getFloat("ability",0f) > LEVEL_HARD){
+            layoutManager = GridLayoutManager(this, 2)
+            adapter.setItemSize(5 , 30f, LinearLayout.VERTICAL)
+        }
+        else if(getSharedPreferences("TouchAbilityMiddle",0).getFloat("ability",0f) > LEVEL_HARD){
+            layoutManager = LinearLayoutManager(this);
+            layoutManager.orientation = LinearLayoutManager.VERTICAL;
+            adapter.setItemSize(5 , 30f,LinearLayout.HORIZONTAL)
+
+
+
+        }else if(getSharedPreferences("TouchAbilitySimple",0).getFloat("ability",0f) > LEVEL_HARD){
+            layoutManager = LinearLayoutManager(this);
+            layoutManager.orientation = LinearLayoutManager.VERTICAL;
+            adapter.setItemSize(4,40f,LinearLayout.HORIZONTAL)
+
+        }else{
+            layoutManager = LinearLayoutManager(this);
+            layoutManager.orientation = LinearLayoutManager.VERTICAL;
+            adapter.setItemSize(3,50f,LinearLayout.HORIZONTAL)
+        }
+        listView.layoutManager = layoutManager
+
+
         listView.adapter = adapter
         adapter.setOnRecyclerViewListener(object : ContactsAdapter.OnRecyclerViewListener {
             override fun onItemClick(view: View, position: Int) {
@@ -143,11 +173,11 @@ class ContactActivity : AppCompatActivity() {
         }.show()
     }
     fun onCameraSelected(){
-        var cameraIntent = Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+        val cameraIntent = Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
         startActivityForResult(cameraIntent, CAMERA_REQUEST);
     }
     fun onImageGallerySelected(){
-        var photoPicker = Intent(Intent.ACTION_PICK)
+        val photoPicker = Intent(Intent.ACTION_PICK)
         photoPicker.type = "image/*"
         startActivityForResult(photoPicker,IMAGE_GALLERY_REQUEST)
     }
@@ -175,7 +205,7 @@ class ContactActivity : AppCompatActivity() {
             IMAGE_GALLERY_REQUEST -> try{
                 //val bitmap = BitmapFactory.decodeResource(resources,R.drawable.play_button)
                 val bitmap = MediaStore.Images.Media.getBitmap(contentResolver, data?.data)
-                var image = ByteArrayOutputStream()
+                val image = ByteArrayOutputStream()
                 bitmap.compress(Bitmap.CompressFormat.PNG,100,image)
                 setContactPicture(this,currentID.toString(),image)
                 contacts_list[currentID.toInt()-1].image = BitmapDrawable(resources, bitmap)
@@ -185,8 +215,8 @@ class ContactActivity : AppCompatActivity() {
                 Log.e("","Error file")
             }
             CAMERA_REQUEST ->{
-                var photo = data?.extras?.get("data") as Bitmap
-                var image = ByteArrayOutputStream()
+                val photo = data?.extras?.get("data") as Bitmap
+                val image = ByteArrayOutputStream()
                 photo.compress(Bitmap.CompressFormat.PNG,100,image)
                 setContactPicture(this,currentID.toString(),image)
                 contacts_list[currentID.toInt()-1].image = BitmapDrawable(resources, photo)
@@ -200,7 +230,7 @@ class ContactActivity : AppCompatActivity() {
 
     }
 
-    fun callAlert(name: String, number: String) {
+    /*fun callAlert(name: String, number: String) {
         AlertDialog.Builder(this)
                 .setMessage("Call $name ?")
                 .setPositiveButton("CALL") { arg0, arg1 ->
@@ -210,34 +240,35 @@ class ContactActivity : AppCompatActivity() {
                 }
                 .setNegativeButton("BACK", null)
                 .show()
-    }
+    }*/
     fun addContact(displayName : String , number :String){
-         var ops = ArrayList < ContentProviderOperation > ()
+        var ops = ArrayList<ContentProviderOperation>().apply {
 
-        ops.add(ContentProviderOperation.newInsert(
-                ContactsContract.RawContacts.CONTENT_URI)
-                .withValue(ContactsContract.RawContacts.ACCOUNT_TYPE, null)
-                .withValue(ContactsContract.RawContacts.ACCOUNT_NAME, null)
-                .build()
-        )
+            add(ContentProviderOperation.newInsert(
+                    ContactsContract.RawContacts.CONTENT_URI)
+                    .withValue(ContactsContract.RawContacts.ACCOUNT_TYPE, null)
+                    .withValue(ContactsContract.RawContacts.ACCOUNT_NAME, null)
+                    .build()
+            )
 
-        ops.add(ContentProviderOperation.newInsert(
-                ContactsContract.Data.CONTENT_URI)
-                .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
-                .withValue(ContactsContract.Data.MIMETYPE,
-                        ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE)
-                .withValue(
-                        ContactsContract.CommonDataKinds.StructuredName.DISPLAY_NAME,
-                        displayName).build())
-        ops.add(ContentProviderOperation.
-                newInsert(ContactsContract.Data.CONTENT_URI)
-                .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
-                .withValue(ContactsContract.Data.MIMETYPE,
-                        ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE)
-                .withValue(ContactsContract.CommonDataKinds.Phone.NUMBER, number)
-                .withValue(ContactsContract.CommonDataKinds.Phone.TYPE,
-                        ContactsContract.CommonDataKinds.Phone.TYPE_MOBILE)
-                .build())
+            add(ContentProviderOperation.newInsert(
+                    ContactsContract.Data.CONTENT_URI)
+                    .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
+                    .withValue(ContactsContract.Data.MIMETYPE,
+                            ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE)
+                    .withValue(
+                            ContactsContract.CommonDataKinds.StructuredName.DISPLAY_NAME,
+                            displayName).build())
+            add(ContentProviderOperation.
+                    newInsert(ContactsContract.Data.CONTENT_URI)
+                    .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
+                    .withValue(ContactsContract.Data.MIMETYPE,
+                            ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE)
+                    .withValue(ContactsContract.CommonDataKinds.Phone.NUMBER, number)
+                    .withValue(ContactsContract.CommonDataKinds.Phone.TYPE,
+                            ContactsContract.CommonDataKinds.Phone.TYPE_MOBILE)
+                    .build())
+        }
         try {
             contentResolver.applyBatch(ContactsContract.AUTHORITY,ops)
             contacts_list.add(contacts_list.size-2, Contacts(displayName,number))
@@ -430,7 +461,7 @@ class ContactActivity : AppCompatActivity() {
         var cr = context.contentResolver
         var rawContactUri : Uri? = null
         var rawContactCursor = cr.query(ContactsContract.RawContacts.CONTENT_URI, arrayOf( ContactsContract.RawContacts._ID) , ContactsContract.RawContacts.CONTACT_ID + " = " + id, null, null);
-        if(!rawContactCursor.isAfterLast()) {
+        if(!rawContactCursor.isAfterLast) {
             rawContactCursor.moveToFirst();
             rawContactUri = ContactsContract.RawContacts.CONTENT_URI.buildUpon().appendPath(""+rawContactCursor.getLong(0)).build();
         }

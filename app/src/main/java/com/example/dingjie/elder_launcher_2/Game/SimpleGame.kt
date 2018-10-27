@@ -1,5 +1,6 @@
 package com.example.dingjie.elder_launcher_2.Game
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
@@ -11,6 +12,7 @@ import java.util.*
 import android.graphics.BitmapFactory
 import android.provider.ContactsContract
 import android.content.ContentUris
+import android.content.SharedPreferences
 import android.graphics.Bitmap
 import android.media.MediaPlayer
 import com.example.dingjie.elder_launcher_2.Contact.Contacts
@@ -22,15 +24,20 @@ import java.io.File
 
 
 class SimpleGame : AppCompatActivity() {
-    var mode : String = ""
+    var mode : String = "Simple"
     lateinit var images : Array<ImageView>
     var mediaPlayer : MediaPlayer? = null
     var photo: ArrayList<Contacts> = ArrayList()
     var random :Random = Random()
     var mFileName :String =""
     var answer :Int = 0
-    var photo_answer: Int = 0
+    var photo_answer = 0
     var prepared = false
+    val MAX_QUES = 20
+    var ques = 1
+    var clicked = 0
+    var correct = 0
+    var noRecord = false
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         var intent = getIntent()
@@ -61,21 +68,51 @@ class SimpleGame : AppCompatActivity() {
         }
         for(i in images.indices){
             images[i].setOnClickListener {
-                if(i == answer){
-                    if(mode != "Hard")
-                        randomImage()
-                    else {
-                        if(prepared){
-                            stopPlayer()
-                        }
-                        randomRecord()
-                    }
-                }
-                if(i == 0 ){
-                    if(mode == "Hard"){
+                when (i) {
 
-                        play()
+                    answer -> {
+                        clicked ++
+                        correct ++
+                        if(ques < MAX_QUES) {
+                            if (mode != "Hard" || noRecord)
+                                randomImage()
+                            else {
+                                if (prepared) {
+                                    stopPlayer()
+                                }
+                                randomRecord()
+                            }
+
+                            ques++
+                            Log.d("problem",ques.toString())
+                        }else{
+                            alert{
+                                customView {
+                                    var result = correct.toFloat() / clicked.toFloat()*100.00
+
+                                    textView("正確率：%.2f".format(result))
+
+                                    positiveButton("OK") {
+                                        finish()
+                                    }
+
+                                }
+                            }.show()
+
+                        }
                     }
+                    0 -> {
+                        if (mode == "Hard") {
+
+                            play()
+                        }
+
+                    }
+                    else ->{
+                        clicked ++
+                        toast("Wrong Answer")
+                    }
+
                 }
                 //else
             }
@@ -135,9 +172,10 @@ class SimpleGame : AppCompatActivity() {
     }
     fun randomRecord(){
         mFileName = externalCacheDir.absolutePath
+        photo_answer = random.nextInt(photo.size)
+        var hasFile = photo.size
 
-        do {
-            photo_answer = random.nextInt(photo.size)
+        while(hasFile != 0){
             var mFileName2 = "$mFileName/${photo[photo_answer].name}${photo[photo_answer].number}.3gp"
 
             Log.d("filename",mFileName2)
@@ -145,11 +183,19 @@ class SimpleGame : AppCompatActivity() {
                 mFileName = mFileName2
                 break
             }
+            photo_answer = (photo_answer+1)%photo.size
+            hasFile --
         }
-        while(true)
+
         //mFileName = "$mFileName/${photo[photo_answer].name}${photo[photo_answer].number}.3gp"
         answer = random.nextInt(images.size-1)+1
-        random_image(answer,photo_answer)
+        if(hasFile == 0){
+            noRecord = true
+            randomImage()
+
+        }else {
+            random_image(answer, photo_answer)
+        }
 
     }
     fun randomImage(){
@@ -161,6 +207,7 @@ class SimpleGame : AppCompatActivity() {
         random_image(answer,photo_answer)
         if(mode == "Simple")
             randomShow()
+
     }
     fun random_image(answer :Int ,answer_photo : Int){
         for(i in images.indices){
@@ -228,6 +275,7 @@ class SimpleGame : AppCompatActivity() {
     }
 
 
+    @SuppressLint("Recycle")
     fun getContactIDs(): ArrayList<Contacts>{
         val c = contentResolver.query(ContactsContract.Contacts.CONTENT_URI, null, null, null, null)
         var contactIDs: ArrayList<Contacts> = arrayListOf()
@@ -240,5 +288,27 @@ class SimpleGame : AppCompatActivity() {
 
         return contactIDs
     }
+    override fun onStop(){
+        super.onStop()
+
+    }
+
+    override fun onPause() {
+        if(ques >= 15) {
+            val sp: SharedPreferences = getSharedPreferences("TouchAbility$mode", 0)
+            val ability = correct.toFloat() / clicked.toFloat()
+            var success = sp.edit().putFloat("ability", ability).commit()
+
+            Log.d("Success", success.toString() + ability)
+        }
+        super.onPause()
+
+    }
+    override fun onDestroy() {
+
+        super.onDestroy()
+
+    }
+
 
 }

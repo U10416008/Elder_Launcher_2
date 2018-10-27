@@ -1,5 +1,7 @@
 package com.example.dingjie.elder_launcher_2
 
+
+
 /**
  * Created by dingjie on 2018/3/18.
  */
@@ -10,80 +12,37 @@ import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.util.Log
+import org.jetbrains.anko.db.*
 
 /**
  * Created by user on 2017/11/26.
  */
 
 
-class MySQLite(context: Context, name: String, factory: SQLiteDatabase.CursorFactory, version: Int) : SQLiteOpenHelper(context, name, factory, version) {
-    internal val addType = 1
-    internal val deleteType = 2
+class MySQLite(ctx: Context) : ManagedSQLiteOpenHelper(ctx, "LibraryDatabase", null, 1) {
+    companion object {
+        private var instance: MySQLite? = null
 
-    override fun onCreate(sqLiteDatabase: SQLiteDatabase) {
-        sqLiteDatabase.execSQL("CREATE  TABLE main.schedule " +
-                "(_id INTEGER PRIMARY KEY  NOT NULL , " +
-                "hour INTEGER, " +
-                "minute INTEGER , " +
-                "schedule VARCHAR)")
-    }
-
-    override fun onUpgrade(sqLiteDatabase: SQLiteDatabase, i: Int, i1: Int) {
-
-    }
-
-    fun add(number: String) {
-        val db = this.writableDatabase
-
-        if (!contain(number, addType)) {
-            val values = ContentValues()
-            values.put("number", number)
-            values.put("time", 1)
-            val id = db.insert("main.misscall", null, values)
-            Log.d("ADD", id.toString() + "")
-
+        @Synchronized
+        fun getInstance(context: Context): MySQLite {
+            if (instance == null) {
+                instance = MySQLite(context.applicationContext)
+            }
+            return instance!!
         }
-        db.close()
-
     }
 
-    fun contain(number: String, type: Int): Boolean {
-        val selectQuery = "SELECT * FROM " + "main.misscall"
-        val db = this.writableDatabase
-        val cursor = db.rawQuery(selectQuery, null)
-        if (cursor != null && cursor.moveToFirst()) {
-            do {
-                if (number == cursor.getString(1)) {
-                    if (type == addType) {
-                        var time = cursor.getInt(2)
-                        val cv = ContentValues()
-                        Log.d("BEFORE", time.toString())
-                        time++
-                        cv.put("time", time)
-
-                        db.update("main.misscall", cv, "number = ?", arrayOf(number))
-                        Log.d("AFTER", cursor.getInt(2).toString())
-                        Log.d("UPDATE", number)
-
-                    }
-                    return true
-                }
-
-            } while (cursor.moveToNext())
-        }
-        // return contact list
-
-        return false
+    override fun onCreate(database: SQLiteDatabase) {
+        database.createTable("Fequency", true, "id" to INTEGER + PRIMARY_KEY, "number" to TEXT, "time" to INTEGER)
     }
 
-    fun delete(number: String): Boolean {
-        if (contain(number, deleteType)) {
-            val db = this.writableDatabase
-            db.delete("main.misscall", "number = ?", arrayOf(number))
-            return true
-        } else {
-            return false
-        }
-
+    override fun onUpgrade(database: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
+        database.dropTable("Fequency", true)
     }
+
+
 }
+val Context.database: MySQLite
+    get() = MySQLite.getInstance(applicationContext)
+
+class myNumberTime(val id: Int, val number:String ,var time:Int)

@@ -35,7 +35,7 @@ class AudioRecordActivity :AppCompatActivity(){
             Thread.sleep(500)
             if (!isSeeking && mediaPlayer != null) {
                 progressSeekBar.progress = mediaPlayer!!.currentPosition
-                Log.e("Current",""+progressSeekBar.progress)
+                //Log.e("Current",""+progressSeekBar.progress)
             }
         }
     })
@@ -43,7 +43,7 @@ class AudioRecordActivity :AppCompatActivity(){
         super.onCreate(savedInstanceState)
 
         mFileName = externalCacheDir.absolutePath
-        var filename: String = intent.getStringExtra("contact")
+        val filename: String? = intent.getStringExtra("contact")
 
         if(filename != null) {
             mFileName = "$mFileName/$filename.3gp"
@@ -57,6 +57,7 @@ class AudioRecordActivity :AppCompatActivity(){
 
 
     }
+    @SuppressLint("ClickableViewAccessibility")
     fun initListener(){
         progressSeekBar = find<SeekBar>(R.id.seek)
         playButton =find<Button>(R.id.play_record)

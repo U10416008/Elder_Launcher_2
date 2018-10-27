@@ -12,10 +12,11 @@ import android.telephony.TelephonyManager
 import android.widget.Toast
 import java.net.Socket
 import android.util.Log
+import org.jetbrains.anko.db.*
 
 
 class PhoneStateReceiver : BroadcastReceiver(){
-    internal val client = Client("192.168.0.182", 1234)
+    internal val client = Client("192.168.43.32", 1234)
     var LOG_TAG = "Phone"
 
 
@@ -32,7 +33,41 @@ class PhoneStateReceiver : BroadcastReceiver(){
             }
             when(tm.callState){
 
-                TelephonyManager.CALL_STATE_OFFHOOK -> initServer(intent!!.getStringExtra("incoming_number"), my_number)
+                TelephonyManager.CALL_STATE_OFFHOOK -> {
+                    val incomeNumber = intent!!.getStringExtra("incoming_number")
+                    initServer(incomeNumber, my_number)
+
+                    var db = MySQLite.getInstance(context!!.applicationContext).writableDatabase
+                    db.use{
+
+                        db.select("Fequency","time").whereArgs("(number = {call_number})",
+                                "call_number" to incomeNumber).exec{
+                            var time = parseOpt(IntParser)
+
+                            if (time == null){
+                                db.insert("Fequency",
+                                        "number" to incomeNumber,
+                                        "time" to 1
+                                )
+                                Log.d("Insert","1")
+                            }else{
+
+                                time++
+                                db.update("Fequency", "time" to time).whereSimple("number = ?", incomeNumber).exec()
+                                Log.d("Update", "" + time)
+                            }
+                            /*
+                                    */
+
+                        }
+
+
+                    }
+
+
+
+                }
+
             }
 
 

@@ -1,22 +1,23 @@
-package com.example.dingjie.elder_launcher_2.UI
+    package com.example.dingjie.elder_launcher_2.UI
 
-import android.graphics.Color
-import android.graphics.Typeface
-import android.support.v4.content.res.ResourcesCompat
-import android.util.Log
-import android.view.Gravity
-import android.view.View
-import android.widget.ImageView
-import android.widget.TextClock
-import android.widget.TextView
-import com.example.dingjie.elder_launcher_2.MainActivity
-import com.example.dingjie.elder_launcher_2.R
-import org.jetbrains.anko.*
+    import android.graphics.Color
+    import android.graphics.Typeface
+    import android.support.v4.content.res.ResourcesCompat
+    import android.util.Log
+    import android.view.Gravity
+    import android.view.View
+    import android.widget.GridLayout
+    import android.widget.ImageView
+    import android.widget.TextClock
+    import android.widget.TextView
+    import com.example.dingjie.elder_launcher_2.MainActivity
+    import com.example.dingjie.elder_launcher_2.R
+    import org.jetbrains.anko.*
 
-/**
- * Created by dingjie on 2018/3/19.
- */
-class MainActivityUI : AnkoComponent<MainActivity> {
+    /**
+    * Created by dingjie on 2018/3/19.
+    */
+    class MainActivityUI : AnkoComponent<MainActivity> {
     val TextView.chango: Typeface? get() =
      ResourcesCompat.getFont(this.context, R.font.chango)
 
@@ -30,8 +31,8 @@ class MainActivityUI : AnkoComponent<MainActivity> {
                 textClock {
                     typeface= chango
                     textColor = Color.YELLOW
-                    textSize =40f
-                }.lparams(height = wrapContent , width = wrapContent , weight = 0.70f)
+                    textSize =35f
+                }.lparams(height = wrapContent , width = wrapContent , weight = 0.40f)
                 button("SOS" ) {
                     id = R.id.sosbutton
                     backgroundResource= R.drawable.sos_button
@@ -45,21 +46,38 @@ class MainActivityUI : AnkoComponent<MainActivity> {
                     /*onClick {
                         toast("Hey ${name.text}! Thank you for contacting us. We will get in touch with you soon.")
                     }*/
-                }.lparams(height = wrapContent , width = wrapContent , weight = 0.3f)
+                }.lparams(height = wrapContent , width = wrapContent , weight = 0.6f)
             }
-            linearLayout{
 
+
+            linearLayout {
                 verticalLayout {
 
-                    imageView {
+                    frameLayout {
+                        imageView {
 
-                        imageResource = R.drawable.contacts
-                        id = R.id.contacts
+                            imageResource = R.drawable.contact
+                            id = R.id.contacts
+
+                        }.lparams {
+
+                        }
+                        imageView {
+
+                            imageResource = R.drawable.contact
+                            //id = R.id.contacts
+
+                        }.lparams {
+
+                        }
                     }
                     textView {
-                        typeface= chango
+                        typeface = chango
                         textResource = R.string.contact
                         textAlignment = View.TEXT_ALIGNMENT_CENTER
+
+
+                    }.lparams {
 
                     }
                 }.lparams{
@@ -68,11 +86,12 @@ class MainActivityUI : AnkoComponent<MainActivity> {
                 verticalLayout {
                     imageView {
                         id = R.id.chat
-                       imageResource = R.drawable.contacts
+                        imageResource = R.drawable.schedule
+
 
                     }
                     textView {
-                        typeface= chango
+                        typeface = chango
                         textResource = R.string.note
                         textAlignment = View.TEXT_ALIGNMENT_CENTER
 
@@ -82,18 +101,20 @@ class MainActivityUI : AnkoComponent<MainActivity> {
                     weight = 0.5f
                 }
             }
-            linearLayout{
+
+            linearLayout {
                 verticalLayout {
                     imageView {
-                        imageResource = R.drawable.contacts
+                        imageResource = R.drawable.game
                         id = R.id.game
                         textAlignment = View.TEXT_ALIGNMENT_CENTER
 
                     }
                     textView {
-                        typeface= chango
+                        typeface = chango
                         textResource = R.string.game
                         textAlignment = View.TEXT_ALIGNMENT_CENTER
+
 
                     }
                 }.lparams{
@@ -101,12 +122,12 @@ class MainActivityUI : AnkoComponent<MainActivity> {
                 }
                 verticalLayout {
                     imageView {
-                        imageResource = R.drawable.contacts
+                        imageResource = R.drawable.more
                         id = R.id.more
 
                     }
                     textView {
-                        typeface= chango
+                        typeface = chango
                         textResource = R.string.more
                         textAlignment = View.TEXT_ALIGNMENT_CENTER
                     }
@@ -117,6 +138,7 @@ class MainActivityUI : AnkoComponent<MainActivity> {
 
 
 
+
         }
     }
-}
+    }

@@ -15,30 +15,51 @@ class GameUI : AnkoComponent<GameActivity>{
 
 
             verticalLayout {
+
+
+
                 textView(R.string.train) {
-                    setTypeface(chango)
+                    typeface = chango
                     textSize = 50f
 
-                }
+                }.lparams{
+                    width = matchParent
+                    height = wrapContent
+                    margin =dip(40)}
 
                 button(R.string.simple) {
+                    backgroundResource = R.drawable.simple
                     id = R.id.simple
-                    setTypeface(chango)
+                    typeface = chango
                     textSize = 50f
 
-                }
+                }.lparams{
+                    width = matchParent
+                    height = wrapContent
+                    margin =dip(30)}
+
                 button(R.string.middle) {
+                    backgroundResource = R.drawable.simple
+                    id = R.id.simple
                     id = R.id.middle
-                    setTypeface(chango)
+                    typeface = chango
                     textSize = 50f
 
-                }
+                }.lparams{
+                    width = matchParent
+                    height = wrapContent
+                    margin =dip(30)}
                 button(R.string.hard) {
+                    backgroundResource = R.drawable.simple
+                    id = R.id.simple
                     id = R.id.hard
-                    setTypeface(chango)
+                    typeface = chango
                     textSize = 50f
 
-                }
+                }.lparams{
+                    width = matchParent
+                    height = wrapContent
+                    margin =dip(30)}
 
             }
 
