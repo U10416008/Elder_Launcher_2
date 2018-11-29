@@ -53,7 +53,7 @@
             linearLayout {
                 verticalLayout {
 
-                    frameLayout {
+
                         imageView {
 
                             imageResource = R.drawable.contact
@@ -62,15 +62,8 @@
                         }.lparams {
 
                         }
-                        imageView {
 
-                            imageResource = R.drawable.contact
-                            //id = R.id.contacts
 
-                        }.lparams {
-
-                        }
-                    }
                     textView {
                         typeface = chango
                         textResource = R.string.contact

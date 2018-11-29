@@ -16,7 +16,7 @@ import org.jetbrains.anko.db.*
 
 
 class PhoneStateReceiver : BroadcastReceiver(){
-    internal val client = Client("192.168.43.32", 1234)
+    internal val client = Client("192.168.0.182", 1234)
     var LOG_TAG = "Phone"
 
 

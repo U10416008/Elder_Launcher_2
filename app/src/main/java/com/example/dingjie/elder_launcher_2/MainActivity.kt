@@ -2,6 +2,7 @@ package com.example.dingjie.elder_launcher_2
 
 import android.Manifest
 import android.app.Service
+import android.content.ContentUris
 import android.content.Context
 import android.content.Intent
 import android.content.res.Resources
@@ -19,17 +20,24 @@ import com.example.dingjie.elder_launcher_2.UI.MainActivityUI
 import org.jetbrains.anko.*
 import java.util.*
 import android.content.pm.PackageManager
+import android.graphics.BitmapFactory
+import android.graphics.drawable.BitmapDrawable
 import android.location.Criteria
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
 import android.net.Uri
+import android.provider.ContactsContract
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.telephony.TelephonyManager
 import android.util.Log
 import android.widget.Toast
+import com.example.dingjie.elder_launcher_2.Contact.Contacts
 import com.example.dingjie.elder_launcher_2.reminder.RemindApp
+import org.jetbrains.anko.db.StringParser
+import org.jetbrains.anko.db.parseList
+import org.jetbrains.anko.db.select
 import java.net.Socket
 
 
@@ -50,19 +58,91 @@ class MainActivity : AppCompatActivity(),SensorEventListener,LocationListener {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
+    fun set_contact_image() {
 
+        var db = MySQLite.getInstance(applicationContext).writableDatabase
+        var numberList : List<String>? = null
+        db.use{
+
+            db.select("Fequency","number").orderBy("time").exec {
+                //order by small to large
+                numberList = parseList(StringParser)
+
+                for (n in numberList!!) {
+                    Log.d("number", n)
+                }
+
+            }
+
+
+        }
+
+        val resolver = contentResolver
+        val cursor = resolver.query(
+                ContactsContract.Contacts.CONTENT_URI, null, null, null, null)
+        if (numberList != null) {
+            while (cursor!!.moveToNext()) {
+                val phoneProjection = arrayOf(ContactsContract.CommonDataKinds.Phone.NUMBER)
+
+                val id = cursor.getInt(cursor.getColumnIndex(ContactsContract.Contacts._ID))
+                val phonesCusor = this.contentResolver.query(
+                        ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                        phoneProjection,
+                        ContactsContract.CommonDataKinds.Phone.CONTACT_ID + "=" + id, null, null)
+                var number = ""
+                var i = 1
+                if (phonesCusor != null && phonesCusor.moveToFirst()) {
+                    do {
+                        val num = phonesCusor.getString(0)
+                        //number = number + i++.toString() + "." + num + "   "
+
+                            number = num
+
+
+                    } while (phonesCusor.moveToNext())
+                }
+                if (number == numberList!![numberList!!.size - 1]) {
+                    val name = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME))
+
+                    val inputStream = ContactsContract.Contacts.openContactPhotoInputStream(contentResolver,
+                            ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI, cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID)).toLong()))
+
+                    if (inputStream != null) {
+
+                        contact.setImageDrawable( BitmapDrawable(resources, BitmapFactory.decodeStream(inputStream)))
+                        inputStream.close()
+
+                    }
+                    break
+                }
+
+                //String number = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                //Log.d("RECORD", id + "/" + name + "/" + number);
+            }
+        }
+
+
+        /*for (i in contacts_list.indices) {
+            Log.d("RECORD", i.toString() + "/" + contacts_list[i].name + "/" + contacts_list[i].number)
+        }*/
+    }
     internal lateinit var button: Button
 
     internal lateinit var more: ImageView
     internal lateinit var contact: ImageView
     internal lateinit var chat: ImageView
     internal lateinit var game: ImageView
-    internal val client = Client("192.168.43.32", 1234)
+    internal val client = Client("192.168.0.182", 1234)
     var timeText : TextView?  = null
     var time = Calendar.getInstance().time;
     internal val MY_LOCATION = 100
     internal val MY_FINE_LOCATION = 101
     internal val MY_COARSE_LOCATION = 102
+
+    override fun onStart() {
+        super.onStart()
+        initContacts()
+    }
     override fun onCreate(savedIntanceState: Bundle?) {
         super.onCreate(savedIntanceState)
         MainActivityUI().setContentView(this)
@@ -248,6 +328,7 @@ class MainActivity : AppCompatActivity(),SensorEventListener,LocationListener {
             startActivity(intent)
         }
         contact.setOnLongClickListener { false }
+        set_contact_image()
     }
 
     fun initMore() {

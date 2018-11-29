@@ -26,11 +26,13 @@ import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.LinearLayout
+import com.example.dingjie.elder_launcher_2.MySQLite
 import com.example.dingjie.elder_launcher_2.R
 import org.jetbrains.anko.*
 import java.io.*
 
 import java.util.ArrayList
+import org.jetbrains.anko.db.*
 
 /**
  * Created by dingjie on 2018/3/15.
@@ -334,6 +336,22 @@ class ContactActivity : AppCompatActivity() {
 
     fun contact() {
 
+        var db = MySQLite.getInstance(applicationContext).writableDatabase
+        var numberList : List<String>? = null
+        db.use{
+
+            db.select("Fequency","number").orderBy("time").exec {
+                //order by small to large
+                numberList = parseList(StringParser)
+
+                for (n in numberList!!) {
+                    Log.d("number", n)
+                }
+
+            }
+
+
+        }
 
         val resolver = contentResolver
         val cursor = resolver.query(
@@ -351,7 +369,8 @@ class ContactActivity : AppCompatActivity() {
             if (phonesCusor != null && phonesCusor.moveToFirst()) {
                 do {
                     val num = phonesCusor.getString(0)
-                    number = number + i++.toString() + "." + num + "   "
+                    //number = number + i++.toString() + "." + num + "   "
+                    number = num;
 
                 } while (phonesCusor.moveToNext())
             }
@@ -359,20 +378,33 @@ class ContactActivity : AppCompatActivity() {
 
             val inputStream = ContactsContract.Contacts.openContactPhotoInputStream(contentResolver,
                     ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI, cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID)).toLong()))
-            if (inputStream != null) {
+            if (numberList != null) {
+                if (inputStream != null) {
 
-                contacts_list.add(Contacts(name, number,BitmapDrawable(resources,BitmapFactory.decodeStream(inputStream))))
-                inputStream.close()
+                    contacts_list.add(Contacts(name, number, BitmapDrawable(resources, BitmapFactory.decodeStream(inputStream)), numberList!!.indexOf(number)))
+                    inputStream.close()
 
-            }else {
-                contacts_list.add(Contacts(name, number))
+                } else {
+                    contacts_list.add(Contacts(name, number, numberList!!.indexOf(number)))
+                }
+            }else{
+                if (inputStream != null) {
+
+                    contacts_list.add(Contacts(name, number, BitmapDrawable(resources, BitmapFactory.decodeStream(inputStream))))
+                    inputStream.close()
+
+                } else {
+                    contacts_list.add(Contacts(name, number))
+                }
             }
             //String number = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
             //Log.d("RECORD", id + "/" + name + "/" + number);
         }
-        for (i in contacts_list.indices) {
+
+        contacts_list.sortByDescending { it.time }
+        /*for (i in contacts_list.indices) {
             Log.d("RECORD", i.toString() + "/" + contacts_list[i].name + "/" + contacts_list[i].number)
-        }
+        }*/
     }
 
     fun checkPermission() : Boolean{
