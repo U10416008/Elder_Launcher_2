@@ -140,7 +140,7 @@ class ContactActivity : AppCompatActivity() {
 
                         }
                         1 -> {
-                            onRecordSelected(contacts_list[position].name+currentID)
+                            onRecordSelected(contacts_list[position].name)
                             dialogInterface.dismiss()
                         }
                         else -> {
@@ -461,24 +461,24 @@ class ContactActivity : AppCompatActivity() {
         var where = ContactsContract.Data.RAW_CONTACT_ID + " == " +
                 ContentUris.parseId(rawContactUri) + " AND " + ContactsContract.RawContacts.Data.MIMETYPE + "=='" +
                 ContactsContract.CommonDataKinds.Photo.CONTENT_ITEM_TYPE + "'"
-        var cursor = cr.query(ContactsContract.Data.CONTENT_URI,	null, where, null, null);
+        var cursor = cr.query(ContactsContract.Data.CONTENT_URI,	null, where, null, null)
         var idIdx  = cursor.getColumnIndexOrThrow(ContactsContract.Data._ID)
         if(cursor.moveToFirst()){
-            photoRow = cursor.getInt(idIdx);
+            photoRow = cursor.getInt(idIdx)
         }
         cursor.close();
 		values.put(ContactsContract.Data.RAW_CONTACT_ID,
 				ContentUris.parseId(rawContactUri));
 		values.put(ContactsContract.Data.IS_SUPER_PRIMARY, 1);
-		values.put(ContactsContract.CommonDataKinds.Photo.PHOTO,bitmap.toByteArray() );
+		values.put(ContactsContract.CommonDataKinds.Photo.PHOTO,bitmap.toByteArray() )
 		values.put(ContactsContract.Data.MIMETYPE,
-				ContactsContract.CommonDataKinds.Photo.CONTENT_ITEM_TYPE);
+				ContactsContract.CommonDataKinds.Photo.CONTENT_ITEM_TYPE)
 		try{
 			if(photoRow >= 0){
 				cr.update(
 						ContactsContract.Data.CONTENT_URI,
 						values,
-						ContactsContract.Data._ID + " = " + photoRow, null);
+						ContactsContract.Data._ID + " = " + photoRow, null)
 			} else {
 				cr.insert(
 						ContactsContract.Data.CONTENT_URI,

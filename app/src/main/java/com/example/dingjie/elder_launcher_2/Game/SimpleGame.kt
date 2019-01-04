@@ -176,10 +176,13 @@ class SimpleGame : AppCompatActivity() {
         var hasFile = photo.size
 
         while(hasFile != 0){
-            var mFileName2 = "$mFileName/${photo[photo_answer].name}${photo[photo_answer].number}.3gp"
 
+            var mFileName2 = "$mFileName/${photo[photo_answer].name}.3gp"
             Log.d("filename",mFileName2)
+
             if(File(mFileName2).exists()){
+
+
                 mFileName = mFileName2
                 break
             }
@@ -194,6 +197,7 @@ class SimpleGame : AppCompatActivity() {
             randomImage()
 
         }else {
+            noRecord = false
             random_image(answer, photo_answer)
         }
 

@@ -77,47 +77,50 @@ class MainActivity : AppCompatActivity(),SensorEventListener,LocationListener {
 
         }
 
-        val resolver = contentResolver
-        val cursor = resolver.query(
-                ContactsContract.Contacts.CONTENT_URI, null, null, null, null)
-        if (numberList != null) {
-            while (cursor!!.moveToNext()) {
-                val phoneProjection = arrayOf(ContactsContract.CommonDataKinds.Phone.NUMBER)
+        if(ContextCompat.checkSelfPermission(this,
+                        Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
+            val resolver = contentResolver
+            val cursor = resolver.query(
+                    ContactsContract.Contacts.CONTENT_URI, null, null, null, null)
+            if (numberList != null) {
+                while (cursor!!.moveToNext()) {
+                    val phoneProjection = arrayOf(ContactsContract.CommonDataKinds.Phone.NUMBER)
 
-                val id = cursor.getInt(cursor.getColumnIndex(ContactsContract.Contacts._ID))
-                val phonesCusor = this.contentResolver.query(
-                        ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-                        phoneProjection,
-                        ContactsContract.CommonDataKinds.Phone.CONTACT_ID + "=" + id, null, null)
-                var number = ""
-                var i = 1
-                if (phonesCusor != null && phonesCusor.moveToFirst()) {
-                    do {
-                        val num = phonesCusor.getString(0)
-                        //number = number + i++.toString() + "." + num + "   "
+                    val id = cursor.getInt(cursor.getColumnIndex(ContactsContract.Contacts._ID))
+                    val phonesCusor = this.contentResolver.query(
+                            ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                            phoneProjection,
+                            ContactsContract.CommonDataKinds.Phone.CONTACT_ID + "=" + id, null, null)
+                    var number = ""
+                    var i = 1
+                    if (phonesCusor != null && phonesCusor.moveToFirst()) {
+                        do {
+                            val num = phonesCusor.getString(0)
+                            //number = number + i++.toString() + "." + num + "   "
 
                             number = num
 
 
-                    } while (phonesCusor.moveToNext())
-                }
-                if (number == numberList!![numberList!!.size - 1]) {
-                    val name = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME))
-
-                    val inputStream = ContactsContract.Contacts.openContactPhotoInputStream(contentResolver,
-                            ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI, cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID)).toLong()))
-
-                    if (inputStream != null) {
-
-                        contact.setImageDrawable( BitmapDrawable(resources, BitmapFactory.decodeStream(inputStream)))
-                        inputStream.close()
-
+                        } while (phonesCusor.moveToNext())
                     }
-                    break
-                }
+                    if (numberList!!.isNotEmpty() &&number == numberList!![numberList!!.size - 1]) {
+                        val name = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME))
 
-                //String number = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-                //Log.d("RECORD", id + "/" + name + "/" + number);
+                        val inputStream = ContactsContract.Contacts.openContactPhotoInputStream(contentResolver,
+                                ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI, cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID)).toLong()))
+
+                        if (inputStream != null) {
+
+                            contact.setImageDrawable(BitmapDrawable(resources, BitmapFactory.decodeStream(inputStream)))
+                            inputStream.close()
+
+                        }
+                        break
+                    }
+
+                    //String number = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                    //Log.d("RECORD", id + "/" + name + "/" + number);
+                }
             }
         }
 
@@ -132,7 +135,7 @@ class MainActivity : AppCompatActivity(),SensorEventListener,LocationListener {
     internal lateinit var contact: ImageView
     internal lateinit var chat: ImageView
     internal lateinit var game: ImageView
-    internal val client = Client("192.168.0.182", 1234)
+    internal val client = Client("10.0.1.13", 1234)
     var timeText : TextView?  = null
     var time = Calendar.getInstance().time;
     internal val MY_LOCATION = 100

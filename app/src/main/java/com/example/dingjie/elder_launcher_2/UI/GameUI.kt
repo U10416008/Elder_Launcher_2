@@ -12,12 +12,7 @@ class GameUI : AnkoComponent<GameActivity>{
     val TextView.chango: Typeface? get() =
         ResourcesCompat.getFont(this.context, R.font.chango)
     override fun createView(ui: AnkoContext<GameActivity>)= with(ui) {
-
-
             verticalLayout {
-
-
-
                 textView(R.string.train) {
                     typeface = chango
                     textSize = 50f
